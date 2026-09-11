@@ -7,6 +7,10 @@ import { useApp } from "../../context/AppContext";
 import { products } from "../../data/data";
 import Mascot from "../mascot/Mascot";
 
+// Must match MAX_ATTACHMENT_BYTES in src/app/api/send-email/route.ts (Vercel caps request bodies at 4.5 MB).
+const MAX_ATTACHMENT_BYTES = 3 * 1024 * 1024;
+const ACCEPTED_EXTENSIONS = [".stl", ".obj", ".3mf", ".step", ".stp", ".iges", ".igs"];
+
 export const QuoteModal: React.FC = () => {
   const { isQuoteModalOpen, setQuoteModalOpen, quoteItems, removeFromQuote, clearQuote } = useApp();
   const [step, setStep] = useState(1);
@@ -52,6 +56,25 @@ export const QuoteModal: React.FC = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // The input's accept attribute doesn't apply to drag-and-drop, so both paths validate here.
+  const selectFile = (file: File) => {
+    const extension = file.name.includes(".") ? file.name.slice(file.name.lastIndexOf(".")).toLowerCase() : "";
+    if (!ACCEPTED_EXTENSIONS.includes(extension)) {
+      alert("Tip de fișier neacceptat. Încarcă un fișier .STL, .OBJ, .3MF, .STEP sau .IGES.");
+      return;
+    }
+    if (file.size > MAX_ATTACHMENT_BYTES) {
+      alert(
+        `Fișierul are ${(file.size / (1024 * 1024)).toFixed(1)} MB, iar limita este 3 MB. ` +
+        "Trimite cererea fără fișier și adaugă în descriere un link (Google Drive, WeTransfer), sau trimite-ne fișierul pe WhatsApp."
+      );
+      return;
+    }
+    setSelectedFile(file);
+    setFileName(file.name);
+    setFileSize((file.size / (1024 * 1024)).toFixed(2) + " MB");
+  };
+
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -67,20 +90,16 @@ export const QuoteModal: React.FC = () => {
     e.stopPropagation();
     setDragActive(false);
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      const file = e.dataTransfer.files[0];
-      setSelectedFile(file);
-      setFileName(file.name);
-      setFileSize((file.size / (1024 * 1024)).toFixed(2) + " MB");
+      selectFile(e.dataTransfer.files[0]);
     }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setSelectedFile(file);
-      setFileName(file.name);
-      setFileSize((file.size / (1024 * 1024)).toFixed(2) + " MB");
+      selectFile(e.target.files[0]);
     }
+    // Allow re-selecting the same file after a rejection.
+    e.target.value = "";
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -130,6 +149,9 @@ export const QuoteModal: React.FC = () => {
         });
       } catch (err) {
         console.error("Eroare citire fisier 3D:", err);
+        alert("Fișierul nu a putut fi citit. Încarcă-l din nou sau trimite cererea fără fișier.");
+        setSubmitting(false);
+        return;
       }
     }
 
@@ -145,7 +167,8 @@ export const QuoteModal: React.FC = () => {
           attachments: attachments.length > 0 ? attachments : undefined,
         }),
       });
-      const data = await res.json();
+      // Error responses from the hosting layer (e.g. 413) aren't JSON.
+      const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         alert(data.error || "Eroare la trimiterea cererii de cotație.");
       } else {
@@ -424,7 +447,7 @@ export const QuoteModal: React.FC = () => {
                         <input
                           type="file"
                           id="file-upload"
-                          accept=".stl,.obj,.3mf,.step,.iges"
+                          accept=".stl,.obj,.3mf,.step,.stp,.iges,.igs"
                           className="hidden"
                           onChange={handleFileChange}
                         />
@@ -435,7 +458,7 @@ export const QuoteModal: React.FC = () => {
                             răsfoiește computerul
                           </label>
                         </p>
-                        <p className="text-xs text-zinc-500">Fișiere acceptate: .STL, .OBJ, .STEP (max. 50MB)</p>
+                        <p className="text-xs text-zinc-500">Fișiere acceptate: .STL, .OBJ, .3MF, .STEP, .IGES (max. 3 MB). Pentru fișiere mai mari, pune un link în descriere.</p>
 
                         {fileName && (
                           <motion.div

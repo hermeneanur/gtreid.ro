@@ -188,7 +188,7 @@ export const Footer: React.FC = () => {
           <p>© {new Date().getFullYear()} gtreiD. Toate drepturile rezervate.</p>
           <div className="flex flex-wrap gap-6 items-center justify-center">
             <Link href="/termeni" className="hover:text-white transition-colors">Termeni și Condiții</Link>
-            <Link href="/faq" className="hover:text-white transition-colors">Politică de Confidențialitate</Link>
+            <Link href="/termeni#confidentialitate" className="hover:text-white transition-colors">Politică de Confidențialitate</Link>
             <Link href="/contact" className="hover:text-white transition-colors">Locație Showroom</Link>
           </div>
         </div>

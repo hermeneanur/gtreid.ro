@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Trash2, Plus, Minus, ShoppingBag, Send, Check, Loader2, Sparkles, Truck } from "lucide-react";
-import { useApp } from "../../context/AppContext";
+import { useApp, getCartItemKey } from "../../context/AppContext";
 import { products } from "../../data/data";
 import Mascot from "../mascot/Mascot";
 
@@ -100,7 +100,8 @@ export const CartPanel: React.FC = () => {
           text: textBody,
         }),
       });
-      const data = await res.json();
+      // Error responses from the hosting layer (e.g. 413, 504) aren't JSON.
+      const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         alert(data.error || "Eroare la trimiterea comenzii.");
       } else {
@@ -219,7 +220,7 @@ export const CartPanel: React.FC = () => {
                 </div>
 
                 {itemsWithDetails.map((item) => (
-                  <div key={item.slug} className="flex gap-4 p-3 bg-zinc-900/50 border border-white/5 rounded-xl relative group">
+                  <div key={getCartItemKey(item)} className="flex gap-4 p-3 bg-zinc-900/50 border border-white/5 rounded-xl relative group">
                     <div className="w-20 h-20 bg-black/40 rounded-lg overflow-hidden flex-shrink-0 relative">
                       {item.product.images?.[0] ? (
                         <img
@@ -248,14 +249,14 @@ export const CartPanel: React.FC = () => {
 
                         <div className="flex items-center border border-white/10 rounded-lg bg-[#111111] overflow-hidden">
                           <button
-                            onClick={() => updateCartQuantity(item.slug, item.quantity - 1)}
+                            onClick={() => updateCartQuantity(getCartItemKey(item), item.quantity - 1)}
                             className="p-1.5 text-zinc-400 hover:text-white hover:bg-white/5 transition-colors"
                           >
                             <Minus className="h-3.5 w-3.5" />
                           </button>
                           <span className="px-3 text-xs font-mono font-bold">{item.quantity}</span>
                           <button
-                            onClick={() => updateCartQuantity(item.slug, item.quantity + 1)}
+                            onClick={() => updateCartQuantity(getCartItemKey(item), item.quantity + 1)}
                             className="p-1.5 text-zinc-400 hover:text-white hover:bg-white/5 transition-colors"
                           >
                             <Plus className="h-3.5 w-3.5" />
@@ -265,7 +266,7 @@ export const CartPanel: React.FC = () => {
                     </div>
 
                     <button
-                      onClick={() => removeFromCart(item.slug)}
+                      onClick={() => removeFromCart(getCartItemKey(item))}
                       className="absolute top-2 right-2 p-1 text-zinc-500 hover:text-red-400 transition-colors"
                       title="Elimină din coș"
                     >
