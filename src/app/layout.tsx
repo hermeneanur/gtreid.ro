@@ -22,7 +22,10 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "gtreiD - Printare 3D Premium și Modelare Personalizată",
+  title: {
+    default: "gtreiD - Printare 3D Premium și Modelare Personalizată",
+    template: "%s | gtreiD",
+  },
   description: "Transformăm ideile în obiecte reale prin printare 3D de înaltă precizie. Realizăm brelocuri, ornamente, pușculițe, logo-uri 3D, figurine și proiecte speciale personalizate.",
   metadataBase: new URL("https://gtreid.ro"),
   openGraph: {
@@ -32,6 +35,7 @@ export const metadata: Metadata = {
     siteName: "gtreiD",
     locale: "ro_RO",
     type: "website",
+    images: [{ url: "/logo.png", alt: "gtreiD" }],
   },
 };
 

@@ -1,5 +1,22 @@
 import type { NextConfig } from "next";
 
+// React needs 'unsafe-eval' and the dev server needs websockets (HMR) only in development.
+const isDev = process.env.NODE_ENV === "development";
+
+const contentSecurityPolicy = [
+  "default-src 'self'",
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  "font-src 'self' https://fonts.gstatic.com",
+  "img-src 'self' blob: data:",
+  "frame-src 'self' https://maps.google.com https://www.google.com",
+  `connect-src 'self'${isDev ? " ws: wss:" : ""}`,
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "frame-ancestors 'none'",
+].join("; ");
+
 const nextConfig: NextConfig = {
   async headers() {
     return [
@@ -32,7 +49,7 @@ const nextConfig: NextConfig = {
           },
           {
             key: "Content-Security-Policy",
-            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' blob: data:; frame-src 'self' https://maps.google.com https://www.google.com; connect-src 'self' ws: wss:;",
+            value: contentSecurityPolicy,
           }
         ],
       },

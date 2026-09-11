@@ -11,6 +11,10 @@ export interface CartItem {
   selectedMaterial?: string;
 }
 
+// A cart line is one product in one color/material combination.
+export const getCartItemKey = (item: Pick<CartItem, "slug" | "selectedColor" | "selectedMaterial">) =>
+  `${item.slug}::${item.selectedColor ?? ""}::${item.selectedMaterial ?? ""}`;
+
 interface AppContextProps {
   theme: Theme;
   toggleTheme: () => void;
@@ -26,8 +30,8 @@ interface AppContextProps {
   // Cart properties
   cartItems: CartItem[];
   addToCart: (slug: string, quantity?: number, color?: string, material?: string) => void;
-  removeFromCart: (slug: string) => void;
-  updateCartQuantity: (slug: string, quantity: number) => void;
+  removeFromCart: (itemKey: string) => void;
+  updateCartQuantity: (itemKey: string, quantity: number) => void;
   clearCart: () => void;
   isCartOpen: boolean;
   setCartOpen: (open: boolean) => void;
@@ -130,11 +134,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Cart operations
   const addToCart = (slug: string, quantity: number = 1, color?: string, material?: string) => {
     setCartItems((prev) => {
-      const existing = prev.find((item) => item.slug === slug);
+      const key = getCartItemKey({ slug, selectedColor: color, selectedMaterial: material });
+      const existing = prev.find((item) => getCartItemKey(item) === key);
       let updated: CartItem[];
       if (existing) {
         updated = prev.map((item) =>
-          item.slug === slug ? { ...item, quantity: item.quantity + quantity } : item
+          getCartItemKey(item) === key ? { ...item, quantity: item.quantity + quantity } : item
         );
       } else {
         updated = [...prev, { slug, quantity, selectedColor: color, selectedMaterial: material }];
@@ -145,18 +150,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setCartOpen(true); // Open the cart panel immediately on addition
   };
 
-  const removeFromCart = (slug: string) => {
+  const removeFromCart = (itemKey: string) => {
     setCartItems((prev) => {
-      const updated = prev.filter((item) => item.slug !== slug);
+      const updated = prev.filter((item) => getCartItemKey(item) !== itemKey);
       localStorage.setItem("gtreid-cart", JSON.stringify(updated));
       return updated;
     });
   };
 
-  const updateCartQuantity = (slug: string, quantity: number) => {
+  const updateCartQuantity = (itemKey: string, quantity: number) => {
     setCartItems((prev) => {
       const updated = prev.map((item) =>
-        item.slug === slug ? { ...item, quantity: Math.max(1, quantity) } : item
+        getCartItemKey(item) === itemKey ? { ...item, quantity: Math.max(1, quantity) } : item
       );
       localStorage.setItem("gtreid-cart", JSON.stringify(updated));
       return updated;

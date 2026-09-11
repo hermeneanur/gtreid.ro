@@ -120,7 +120,7 @@ export default function TermsPage() {
         </section>
 
         {/* Section 6: GDPR */}
-        <section className="space-y-3">
+        <section id="confidentialitate" className="space-y-3 scroll-mt-24">
           <h2 className="text-lg font-bold font-poppins text-white">
             6. Protecția Datelor cu Caracter Personal (GDPR)
           </h2>

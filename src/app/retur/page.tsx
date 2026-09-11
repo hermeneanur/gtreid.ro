@@ -61,7 +61,8 @@ export default function ReturnPage() {
           text: textBody,
         }),
       });
-      const data = await res.json();
+      // Error responses from the hosting layer (e.g. 413, 504) aren't JSON.
+      const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         alert(data.error || "Eroare la trimiterea cererii de retur.");
       } else {
