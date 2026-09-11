@@ -7,6 +7,7 @@ import Footer from "@/components/footer/Footer";
 import LoadingScreen from "@/components/loading-screen/LoadingScreen";
 import QuoteModal from "@/components/quote-modal/QuoteModal";
 import CartPanel from "@/components/cart-panel/CartPanel";
+import { Analytics } from "@vercel/analytics/next";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -59,6 +60,7 @@ export default function RootLayout({
           <QuoteModal />
           <CartPanel />
         </AppProvider>
+        <Analytics />
       </body>
     </html>
   );
