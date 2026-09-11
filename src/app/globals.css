@@ -1,26 +1,107 @@
 @import "tailwindcss";
 
+@theme {
+  --color-primary-orange: #FF8C2A;
+  --color-brand-black: #111111;
+  --color-brand-dark-gray: #1C1C1C;
+  --color-brand-light-gray: #F6F6F6;
+  --color-brand-white: #FFFFFF;
+  --font-poppins: var(--font-poppins), sans-serif;
+  --font-inter: var(--font-inter), sans-serif;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #F6F6F6;
+  --foreground: #111111;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+.dark {
+  --background: #111111;
+  --foreground: #FFFFFF;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter), sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Glassmorphism helpers */
+.glass {
+  background: rgba(28, 28, 28, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.glass-light {
+  background: rgba(246, 246, 246, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* 3D Card transforms */
+.card-3d-container {
+  perspective: 1000px;
+}
+
+.card-3d {
+  transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transform-style: preserve-3d;
+}
+
+.card-3d:hover {
+  transform: rotateY(15deg) rotateX(5deg);
+}
+
+/* Custom Scrollbar for premium tech feel */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #111111;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1C1C1C;
+  border-radius: 4px;
+  border: 2px solid #111111;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #FF8C2A;
+}
+
+/* Masonry Grid helper */
+.masonry-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-gap: 20px;
+  grid-auto-flow: dense;
+}
+
+.masonry-item {
+  break-inside: avoid;
+}
+
+/* Subtle glow animations */
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(255, 140, 42, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(255, 140, 42, 0.3);
+  }
+}
+
+.glow-hover:hover {
+  animation: pulseGlow 2s infinite;
 }
